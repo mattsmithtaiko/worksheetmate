@@ -1,0 +1,409 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mcs5math}[2017/08/23 Set of Math Commands and Tools]
+
+\RequirePackage{xstring}
+\RequirePackage{multirow}
+\RequirePackage{tikz}
+\RequirePackage{pgfplots}
+\RequirePackage{etoolbox}
+\RequirePackage{cancel}
+\pgfplotsset{compat=1.12}
+
+\newcommand{\numline}[2]
+{
+\draw[<->] (0,0) -- (\textwidth,0);
+\pgfmathsetmacro{\numofpostics}{#1}; %the number of tics past the midpoint
+\foreach \x [evaluate=\x as \sx using (\x + \numofpostics + 1)] in {-\numofpostics,...,\numofpostics}
+{
+	\pgfmathsetmacro{\coeff}{1/(2*\numofpostics + 2)};
+	\draw (\coeff*\textwidth*\sx, -0.2) -- (\coeff*\textwidth*\sx, 0.2);
+
+	\pgfmathtruncatemacro{\tfx}{#2};
+	\node at (\coeff*\textwidth*\sx, -0.5) {\tfx};
+}
+}
+
+\newcommand{\numlinenolabels}[1]
+{
+\draw[<->] (0,0) -- (\textwidth,0);
+\pgfmathsetmacro{\numofpostics}{#1}; %the number of tics past the midpoint
+\foreach \x [evaluate=\x as \sx using (\x + \numofpostics + 1)] in {-\numofpostics,...,\numofpostics}
+{
+	\pgfmathsetmacro{\coeff}{1/(2*\numofpostics + 2)};
+	\draw (\coeff*\textwidth*\sx, -0.2) -- (\coeff*\textwidth*\sx, 0.2);
+}
+}
+
+\newcommand{\numlinepos}[2]
+{
+	%\pgfmathsetmacro{\coeff}{1/(2*4 + 2)};
+	1/#1*\textwidth*#2
+}
+
+\newcommand{\numlineccirc}[3][]
+{
+\pgfmathsetmacro{\argone}{(#2 + 1)*2}
+\draw[fill] (1/\argone*\textwidth*#3, 0) circle (0.1) node[above] {#1};
+}
+
+\newcommand{\numlineocirc}[3][]
+{
+\pgfmathsetmacro{\argone}{(#2 + 1)*2}
+\draw[fill=white] (1/\argone*\textwidth*#3, 0) circle (0.1) node[above] {#1};
+}
+
+\newcommand{\numlinesegment}[4]
+{
+\pgfmathsetmacro{\argone}{(#1 + 1)*2}
+\draw[#2, ultra thick] (1/\argone*\textwidth*#3, 0) -- (1/\argone*\textwidth*#4, 0);
+}
+
+\newcommand{\numlinenode}[3]
+{
+\pgfmathsetmacro{\argone}{(#1 + 1)*2}
+\node[below=4] at (1/\argone*\textwidth*#2, 0) {#3};
+}
+
+\newenvironment{hptikzpicture}{\begin{minipage}{0.5\textwidth}\begin{tikzpicture}}{\end{tikzpicture}\end{minipage}}
+
+\newcommand{\coordplane}[1][5]
+{
+\draw[help lines] ({-1*#1 + 0.01},{-1*#1 + 0.01}) grid ({#1 - 0.01},{#1 - 0.01});
+\draw[<->, ultra thick] (0,-#1) -- (0,#1) node[below right] {$y$};
+\draw[<->, ultra thick] (-#1,0) -- (#1,0) node[below] {$x$};
+}
+
+\newcommand{\numcoordplane}[1][4]
+{
+\foreach \x in {1,...,#1}
+{
+\node at (\x, -0.5) {\scriptsize $\x$};
+\node at (-\x-0.2, -0.5) {\scriptsize $-\x$};
+\node at (-0.3, \x) {\scriptsize $\x$};
+\node at (-0.5, -\x-0.1) {\scriptsize $-\x$};
+}
+}
+
+%coordinate plane no tikz
+\newcommand{\coordplanent}[1][0.6]
+{
+\begin{tikzpicture}[scale=#1]
+\coordplane
+\end{tikzpicture}
+}
+
+%numbered coordinate plane no tikz
+\newcommand{\numcoordplanent}[1][0.6]
+{
+\begin{tikzpicture}[scale=#1]
+\coordplane
+\numcoordplane
+\end{tikzpicture}
+}
+
+\newcounter{argoneminusone}
+\newcommand{\scaledcoordplanent}[2][0.6]
+{
+\setcounter{argoneminusone}{#2}
+\addtocounter{argoneminusone}{-1}
+\begin{tikzpicture}[scale=5/#2 * #1]
+\coordplane[#2]
+\numcoordplane[\value{argoneminusone}]
+\end{tikzpicture}
+}
+
+\newcommand{\threedcoordplane}[1]
+{
+\pgfmathsetmacro{\argone}{#1}
+\pgfmathsetmacro{\argoneminusone}{\argone-1}
+\draw[thick, <->] (-\argone,0,0)--(\argone,0,0) node[right] {$y$};
+\draw[thick, <->] (0,-\argone,0)--(0,\argone,0) node[above] {$z$};
+\draw[thick, <->] (0,0,-\argone)--(0,0,\argone) node[below left] {$x$};
+\foreach \x in {-\argoneminusone,...,\argoneminusone}
+{
+	\draw[thick] (\x, 0, -0.3) -- (\x, 0, 0.3);
+	\draw[thick] (-0.2, \x, 0) -- (0.2, \x, 0);
+	\draw[thick] (-0.2, 0, \x) -- (0.2, 0, \x);
+}
+}
+
+\newcommand{\threedcoordplanent}[2][0.6]
+{
+\begin{tikzpicture}[scale=5/#2 * #1]
+\threedcoordplane{#2}
+\end{tikzpicture}
+}
+
+\newcommand{\plottikz}[4]{%
+		\begin{axis}[
+			axis lines=middle,
+			grid=major,
+			xmin=#2,
+			xmax=#3,
+			domain=#2:#3,
+			xlabel=$x$,
+			ylabel=$y$,
+			tick style={very thick},
+		]
+			\addplot[thick,samples=200] {#1};
+			#4
+		\end{axis}
+}
+
+\newcommand{\plotpoint}[3][]{%
+	\ifthenelse{\NOT \isempty{#1}}{%
+		\addplot[mark=*] coordinates {(#2,#3)} node[pin=#1:{$(#2, #3)$}]{};
+	}{%
+		\addplot[mark=*] coordinates {(#2,#3)};
+	}
+}
+
+\newcommand{\plotpointwithlabel}[4][90]{%
+	\addplot[mark=*] coordinates {(#2,#3)} node[pin=#1:{#4}]{};
+}
+
+\newcommand{\plot}[5][0.8]{%
+	\begin{tikzpicture}[scale=#1]
+		\plottikz{#2}{#3}{#4}{#5}
+	\end{tikzpicture}
+}
+
+\newcommand{\initials}[1]{%
+	\csname initial#1\endcsname%
+}
+
+\newcommand{\args}[1]{%
+	\csname arg#1\endcsname%
+}
+
+\newcommand{\results}[1]{%
+	\csname result#1\endcsname%
+}
+
+%%%ERRORS
+\newcommand{\syndivnotworking}[1]{%
+	\expandafter\newcount\csname arg0\endcsname
+	\csname arg0\endcsname=0
+	\expandafter\newcount\csname arg1\endcsname
+	\csname arg1\endcsname=0
+	\expandafter\newcount\csname arg2\endcsname
+	\csname arg2\endcsname=0
+	\expandafter\newcount\csname arg3\endcsname
+	\csname arg3\endcsname=0
+	\expandafter\newcount\csname arg4\endcsname
+	\csname arg4\endcsname=0
+	\newcount\syndivcounter
+	\syndivcounter=1
+	\newcount\syndivminustwo
+	\renewcommand*{\do}[1]{%
+		%\expandafter\newcount\csname arg\the\syndivcounter\endcsname
+		\csname arg\the\syndivcounter\endcsname=##1
+		\advance\syndivcounter by 1
+		\ifnum\syndivcounter>3 %need n-3 result counts
+			\syndivminustwo=\syndivcounter
+			\advance\syndivminustwo by -2%temporarily take it back 2 paces (so the counter lines up with the column)
+			\expandafter\newcount\csname result\the\syndivminustwo\endcsname
+		\fi
+		}
+	\docsvlist{#1}%
+
+	\advance\syndivcounter by -1%don't run the last loop
+	\newcount\syndivloopcounter
+	\syndivloopcounter=2%don't count the first number (the divisor)
+	\newcount\syndivplusone
+	\newcount\temparg
+	SynDivPlusOne: \the\syndivplusone
+	\loop
+		%%%ERROR: some sort of expansion issue here with the \the\syndivloopcounter part (needs to expand before multiply is called)
+		\expandafter\multiply\csname arg\the\syndivloopcounter\endcsname by \csname arg1\endcsname%multiply the number by the divisor
+
+		%%%ERROR: same here I think
+		\expandafter\advance\csname arg\the\syndivplusone\endcsname by \csname arg\the\syndivloopcounter\endcsname%add the result with the next number
+
+		%%%ERROR: might be the same here too with the right hand of the equal sign (left hand should be fine)
+		\csname result\the\syndivloopcounter\endcsname=\csname arg\the\syndivplusone\endcsname%store the result
+	\ifnum\syndivloopcounter<\syndivcounter
+	\advance\syndivloopcounter by 1
+	\advance\syndivplusone by 1
+	\repeat
+
+	\advance\syndivcounter by 1%restore to pre-loop value
+
+	\[%
+	\setlength\doublerulesep{0pt}%
+	\begin{array}{r|rrrr}
+	\the\csname arg0\endcsname & \the\csname arg1\endcsname & \the\csname arg2\endcsname & \the\csname arg3\endcsname & \the\csname arg4\endcsname\\
+	& \downarrow & 0 & 0 & 0\\\cline{2-5}
+	\multicolumn{1}{r}~ & 0 & 0 & 0 & \multicolumn{1}{|r}{0}\\\cline{5-5}
+	\end{array}%
+	\]%
+}
+
+%ERRORS (although this is a good practice case for the above as it uses the same algorithm on a guaranteed cubic input (5 numbers total))
+\newcommand{\syndivcubicnotworking}[1]{%
+	\newcount\syndivcounter
+	\syndivcounter=1
+	\newcount\syndivminustwo
+	\renewcommand*{\do}[1]{%
+		\expandafter\newcount\csname initial\the\syndivcounter\endcsname
+		\expandafter\newcount\csname arg\the\syndivcounter\endcsname
+		\csname initial\the\syndivcounter\endcsname=##1
+		\csname arg\the\syndivcounter\endcsname=##1
+		\advance\syndivcounter by 1
+		\ifnum\syndivcounter>3 %need n-3 result counts
+			\syndivminustwo=\syndivcounter
+			\advance\syndivminustwo by -2%temporarily take it back 2 paces (so the counter lines up with the column)
+			\expandafter\newcount\csname result\the\syndivminustwo\endcsname
+		\fi
+		}
+	\docsvlist{#1}%
+
+	\multiply\args{2} by \args{1}
+	\advance\args{3} by \args{2}
+	\results{2}=\args{3}
+	\multiply\args{3} by \args{1}
+	\advance\args{4} by \args{3}
+	\results{3}=\args{4}
+	\multiply\args{4} by \args{1}
+	\advance\args{5} by \args{4}
+	\[%
+	\setlength\doublerulesep{0pt}%
+	\begin{array}{r|rrrr}
+	\the\initials{1} & \the\initials{2} & \the\initials{3} & \the\initials{4} & \the\initials{5}\\
+	& \downarrow & \the\args{2} & \the\args{3} & \the\args{4}\\\cline{2-5}
+	\multicolumn{1}{r}~ & \theinitials{2} & \the\results{2} & \the\results{3} & \multicolumn{1}{|r}{\the\args{5}}\\\cline{5-5}
+	\end{array}%
+	\]%
+}
+
+\newcommand{\syndivcubic}[5]{%
+	\newcount\argone
+	\newcount\argtwo
+	\newcount\argthree
+	\newcount\argfour
+	\newcount\argfive
+	\argone=#1
+	\argtwo=#2
+	\argthree=#3
+	\argfour=#4
+	\argfive=#5
+	\newcount\resultone
+	\newcount\resulttwo
+	\multiply\argtwo by \argone
+	\advance\argthree by \argtwo
+	\resultone=\argthree
+	\multiply\argthree by \argone
+	\advance\argfour by \argthree
+	\resulttwo=\argfour
+	\multiply\argfour by \argone
+	\advance\argfive by \argfour
+	\[%
+	\setlength\doublerulesep{0pt}%
+	\begin{array}{r|rrrr}
+	#1 & #2 & #3 & #4 & #5\\
+	& \downarrow & \the\argtwo & \the\argthree & \the\argfour\\\cline{2-5}
+	\multicolumn{1}{r}~ & #2 & \the\resultone & \the\resulttwo & \multicolumn{1}{|r}{\the\argfive}\\\cline{5-5}
+	\end{array}%
+	\]%
+}
+
+\newcommand{\@longdivposorneg}[2][]{%
+	\ifthenelse{\isin{flip}{#1}}{%
+		\ifthenelse{#2 < 0}{+&\StrGobbleLeft{#2}{1}}{-&#2}
+	}{%
+		\ifthenelse{#2 < 0}{-&\StrGobbleLeft{#2}{1}}{+&#2}
+	}
+}
+
+\newcommand{\@longdivdivisor}[1]{%
+	\ifthenelse{#1 < 0}{x + \StrGobbleLeft{#1}{1}}{x - #1}
+}
+
+\newcommand{\@longdivremainder}[2]{%
+	\ifthenelse{\NOT #1 = 0}{
+		\ifthenelse{#1 < 0}{- & \displaystyle\frac{\StrGobbleLeft{#1}{1}}{\@longdivdivisor{#2}}}{+ & \displaystyle\frac{#1}{\@longdivdivisor{#2}}}
+	}{}
+}
+
+\newcommand{\longdivcubic}[5]{%
+	\newcount\argone
+	\newcount\argtwo
+	\newcount\argthree
+	\newcount\argfour
+	\newcount\argfive
+	\argone=#1
+	\argtwo=#2
+	\argthree=#3
+	\argfour=#4
+	\argfive=#5
+	\newcount\resultone
+	\newcount\resulttwo
+	\multiply\argtwo by \argone
+	\advance\argthree by \argtwo
+	\resultone=\argthree
+	\multiply\argthree by \argone
+	\advance\argfour by \argthree
+	\resulttwo=\argfour
+	\multiply\argfour by \argone
+	\advance\argfive by \argfour
+	\[%
+		\setlength\arraycolsep{2pt}%
+		\setlength\doublerulesep{0pt}%
+		\begin{array}{rrrrrrrrrr}
+			~ & ~ & ~ & #2x^2\phantom{)} & \@longdivposorneg{\the\resultone}x\phantom{)} & \@longdivposorneg{\the\resulttwo}\phantom{)} & \@longdivremainder{\the\argfive}{#1}\\
+			\cline{2-8}
+			\multicolumn{1}{r|}{\@longdivdivisor{#1}} & \phantom{(}#2x^3 & \@longdivposorneg{#3}x^2\phantom{)} & \@longdivposorneg{#4}x\phantom{)} & \@longdivposorneg{#5}\phantom{)}\\
+			- & (#2x^3 & \@longdivposorneg[flip]{\the\argtwo}x^2) & ~ & \downarrow\phantom{)} & ~ & \multirow{3}{*}{\Bigg\downarrow\phantom{)}}\\
+			\cline{2-6}
+			~ & ~ & ~ & \phantom{(}\the\resultone x^2\phantom{)} & \@longdivposorneg{#4}x\phantom{)}\\
+			~ & ~ & - & (\the\resultone x^2\phantom{)} & \@longdivposorneg[flip]{\the\argthree}x)\\
+			\cline{4-8}
+			~ & ~ & ~ & ~ & ~ & \phantom{(}\the\resulttwo x\phantom{)} & \@longdivposorneg{#5}\phantom{)}\\
+			~ & ~ & ~ & ~ & - & (\the\resulttwo x\phantom{)} & \@longdivposorneg[flip]{\the\argfour})\\
+			\cline{6-8}
+			~ & ~ & ~ & ~ & ~ & ~ & ~ & \the\argfive
+		\end{array}%
+	\]%
+}
+
+\newcounter{sccounter}
+\newcommand{\signchart}[1]{%
+	\setcounter{sccounter}{1}
+	\renewcommand*{\do}[1]{%
+		\ifthenelse{\equal{##1}{+}}{%
+			\node[above] at (\arabic{sccounter}, 0) {$+$};
+		}{%
+			\ifthenelse{\equal{##1}{-}}{%
+				\node[above] at (\arabic{sccounter}, 0) {$-$};
+			}{%
+				\draw (\arabic{sccounter}, 0.3) -- (\arabic{sccounter}, -0.3) node[below] {$##1$};
+				\fill (\arabic{sccounter}, 0) circle (0.1);
+			}
+		}
+		\draw[thick] (\arabic{sccounter}, 0) -- (\arabic{sccounter}+1,0);
+		\stepcounter{sccounter}
+	}%
+
+	\begin{tikzpicture}[scale=0.75]
+		\draw[<-, thick] (0,0) -- (1,0);
+		\docsvlist{#1}
+		\draw[->, thick] (\arabic{sccounter}, 0) -- (\arabic{sccounter}+0.01, 0);
+	\end{tikzpicture}\newline
+}
+
+% \newenvironment{signchart}[2][1]{%
+% 	\newcommand{\scpoint}[2][]{%
+% 		\fill (##2, 0) circle (0.075) node[above] {##2};
+% 	}%
+% 	\newcommand{\scplus}[1]{%
+% 		\node[above] at (##1, 0) {$+$};
+% 	}%
+% 	\newcommand{\scminus}[1]{%
+% 		\node[above] at (##1, 0) {$-$};
+% 	}%
+% 	%
+% 	\begin{tikzpicture}[scale=#1]
+% 		\draw[<->, thick] (0,0) -- (#2, 0);
+% }{%
+% 	\end{tikzpicture}
+% }

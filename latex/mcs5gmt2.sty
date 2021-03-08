@@ -1,0 +1,128 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mcs5gmtf}[2017/12/26 Provides Commands for Formatting Tests/Quizzes/Worksheets according to GradeMate format]
+
+\newif\ifshowanswers
+\showanswersfalse %default is to show questions, not answers
+
+\DeclareOption{answers}{\showanswerstrue}
+\DeclareOption*{\typeout{\CurrentOption is not a valid option for this package.}}
+\ProcessOptions\relax
+
+%whether or not we are currently in the questions environment (used in WorksheetMate)
+\newif\ifinquestionsenv
+\inquestionsenvfalse
+
+\RequirePackage{xcolor}
+\RequirePackage{pgf}
+
+\RequirePackage[absolute]{textpos}
+\TPGrid{17}{22} %half-inch squares on 8.5x11in paper
+
+\setlength{\parindent}{0pt}
+\setlist[enumerate, 1]{label=\arabic*), leftmargin=*} %don't indent the question numbers when enumerating sections
+
+\ifthenelse{\boolean{showanswers}}{%
+	\AtBeginDocument{\begin{textblock}{4}(8.5,1.1875)
+		{\@answerfmt Answer Key}
+	\end{textblock}}%
+}{}
+
+\newcounter{partscounter}
+\newcounter{partnumcounter}
+
+\newcommand{\@answerfmt}{\color{red!50!black}\small}
+
+\newcounter{questioncounter}
+\newenvironment{questions}{%
+	\inquestionsenvtrue
+	\begin{enumerate}[start=\value{questioncounter}]
+	\setcounter{enumi}{\value{questioncounter}}
+}{%
+	\setcounter{questioncounter}{\value{enumi}}
+	\end{enumerate}
+	\inquestionsenvfalse
+}
+
+\newcommand{\question}[2]{%
+	\ifthenelse{\boolean{showanswers}}{%
+		\item #1
+
+		{\@answerfmt#2}
+		\vspace{\baselineskip}
+	}{%
+		\item #1
+		\vfill
+	}%
+}
+
+\newcommand{\@stretchfactor}{1}%sets a default if \setstretchfactor is not called
+\newcommand{\setstretchfactor}[2]{%#1=number of \vfills question should take, #2=number of \vfills question currently has
+	\pgfmathsetmacro{\@stretchfactor}{#1 / #2}
+}
+
+\newcommand{\questionwithparts}[2]{%
+	\setcounter{partscounter}{1}%
+	\begin{samepage}
+		\item #1%
+		#2%
+	\end{samepage}
+}
+
+\newcommand{\@qpartenum}[3][\linewidth-6.79999pt]{%
+	\begin{minipage}[t]{#1}%
+	\ifthenelse{\boolean{showanswers}}{%
+		\begin{enumerate}[start=\value{partscounter}]%
+			\item #2%
+
+			{\@answerfmt#3}
+		\end{enumerate}%
+	}{%
+		\begin{enumerate}[start=\value{partscounter}]%
+			\item #2%
+		\end{enumerate}%
+	}
+	\end{minipage}%
+	\stepcounter{partscounter}%
+}
+\newcommand{\qpart}[4][]{%
+	\ifthenelse{\value{partscounter} = 1}{\\[0.25\baselineskip]}{}%need a newline and some space if this is the first part
+	\ifthenelse{\isempty{#1} \OR #1 = 1}{%
+		\@qpartenum{#3}{#4}%
+		\ifthenelse{\boolean{showanswers}}{%
+			\vspace{\baselineskip}
+		}{%
+			\pgfmathparse{#2*\@stretchfactor}%
+			\vspace{\stretch{\pgfmathresult}}%
+		}
+		\newline%
+	}{%
+		\ifthenelse{#1 = 2}{%
+			\@qpartenum[0.48\linewidth-6.79999pt]{#3}{#4}%
+			\stepcounter{partnumcounter}%
+			\ifthenelse{\value{partnumcounter} = 2}{%
+				\setcounter{partnumcounter}{0}%
+				\ifthenelse{\boolean{showanswers}}{%
+					\vspace{\baselineskip}
+				}{%
+					\pgfmathparse{#2*\@stretchfactor}%
+					\vspace{\stretch{\pgfmathresult}}%
+				}
+				\newline%
+			}{\hfill}%
+		}{}%
+		\ifthenelse{#1 = 3}{%
+			\@qpartenum[0.31\linewidth-6.79999pt]{#3}{#4}%
+			\stepcounter{partnumcounter}%
+			\ifthenelse{\value{partnumcounter} = 3}{%
+				\setcounter{partnumcounter}{0}%
+				\ifthenelse{\boolean{showanswers}}{%
+					\vspace{\baselineskip}
+				}{%
+					\pgfmathparse{#2*\@stretchfactor}%
+					\vspace{\stretch{\pgfmathresult}}%
+				}
+				\newline%
+			}{\hfill}%
+		}{}%
+	}%
+}

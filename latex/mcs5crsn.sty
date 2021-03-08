@@ -1,0 +1,23 @@
+%Provides course names given course numbers. Name comes from CouRSeName
+%optional argument ``short'' provides the short name of the class
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mcs5crsn}[2017/08/12 Provides names for classes taught]
+
+\RequirePackage{xifthen}
+
+\newcommand{\coursename}[2][]{%
+	\begingroup
+		\newcommand{\@coursedef}[3]{%
+			\ifthenelse{\not\isin{short}{#1}}%
+			{%
+				\ifthenelse{\equal{#2}{##1}}{##2}{}%
+			}%
+			{%
+				\ifthenelse{\equal{#2}{##1}}{##3}{}%
+			}%
+		}
+		\@coursedef{210}{210 Honors Algebra 2}{210 H.~Alg.~2}%
+		\@coursedef{231}{231 Algebra 2}{231 Alg.~2}%
+	\endgroup
+}
