@@ -1,0 +1,35 @@
+<script>
+$(function() {
+
+    $('#search').keyup(function() {
+
+        $.ajax({
+            type: "GET",
+            url: "/questions/search_category/",
+            data: {
+                'search_text' : $('#search').val(),
+                'csrfmiddlewaretoken' : $("input[name=csrfmiddlewaretoken]").val()
+            },
+            success: searchSuccess,
+            dataType: 'html'
+        });
+    });
+});
+
+function searchSuccess(data, textStatus, jqXHR)
+{
+    $('#search-results').html(data)
+}
+</script>
+
+{% if catsearch > 0 %}
+    <ul class="catsearch">
+        {% for cat in catsearch %}
+            <li>
+                <p>{{ cat }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No status found.</p>
+{% endif %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load questions_extras %}
+
+{% block title %}WorksheetMate{% endblock %}
+
+{% block content %}
+<h2>This is WorksheetMate.</h2>
+  <p class="lead">
+    It is a database of math <a href="questions/index">questions</a> that can be organized into <a href="worksheets/index">worksheets</a> and downloaded as PDFs.
+  </p>
+  Use the links above to navigate. The basic workflow is this:
+  <ol>
+    <li>Add a new worksheet <a href="#" data-toggle="modal" data-target="#addWorksheetModal">here</a>.</li>
+    <li>Add questions to that worksheet <a href="questions/index">here</a>.</li>
+    <li>Edit the worksheet (if necessary) by clicking the <span class="glyphicon glyphicon-pencil"></span> icon <a href="worksheets/index">here</a>.</li>
+    <li>Download it by clicking the <span class="glyphicon glyphicon-download-alt"></span> icon <a href="worksheets/index">here</a>.</li>
+  </ol>
+
+  {% include "worksheets/add_worksheet_modal.html" %}
+{% endblock %}

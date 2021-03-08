@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Add New Worksheet{% endblock %}
+
+{% block worksheets_nav %}active{% endblock %}
+
+{% block content %}
+  <form action="add" method="post">
+    {% csrf_token %}
+    <table class="table-condensed">
+      {{ form.as_table }}
+    </table>
+    <br />
+    <input type="submit" class="btn btn-primary btn-sm" value="Submit" />
+  </form>
+{% endblock %}

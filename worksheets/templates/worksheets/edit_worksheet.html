@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load questions_extras %}
+
+{% block title %}List of Questions for {{ worksheet.name }}{% endblock %}
+
+{% block worksheets_nav %}active{% endblock %}
+
+{% block content %}
+  <h2>Questions for {{ worksheet.name }}</h2>
+  <p>{{ num_of_questions }} questions</p>
+  {% if not block_list %}
+    No questions to display. <a href="/questions/index">Add some questions.</a><br /><br />
+  {% else %}
+    <div class="panel-group" id="accordion">
+      {% for b in block_list %}
+        <div class="panel panel-default">
+          <div class="panel-heading" style="background-color:{% if b.is_worksheetformatblock %}{% cycle '#E7F7FF' '#E7F7FF' %}{% else %}{% cycle '#FCF3F3' '#FCFCFC' %}{% endif %}">
+            <span class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}" style="text-decoration: none; white-space: pre-wrap;">{% if b.is_worksheetformatblock %}<b>{% endif %}{{ b.text }}{% if b.is_worksheetformatblock %}</b>{% endif %}</a>
+              <span class="pull-right">
+                {% if not forloop.first %}
+                  <a href="{{ worksheet.pk }}/swap/prev/{{ forloop.counter0 }}" class="glyphicon glyphicon-chevron-up" style="text-decoration: none;"></a>&emsp;
+                {% else %}
+                  <span class="glyphicon glyphicon-chevron-up text-muted" style="text-decoration: none;"></span>&emsp;
+                {% endif %}
+                {% if not forloop.last %}
+                  <a href="{{ worksheet.pk }}/swap/next/{{ forloop.counter0 }}" class="glyphicon glyphicon-chevron-down" style="text-decoration: none;"></a>&emsp;
+                {% else %}
+                  <span class="glyphicon glyphicon-chevron-down text-muted" style="text-decoration: none;"></span>&emsp;
+                {% endif %}
+                <a href="#" class="glyphicon glyphicon-plus" style="text-decoration: none;" data-toggle="modal" data-target="#addBlockModal{{ forloop.counter0 }}"></a>&emsp;
+                <a href="{{ worksheet.pk }}/remove/{{ forloop.counter0 }}" class="glyphicon glyphicon-remove" style="text-decoration: none;"></a>
+              </span>
+            </span>
+            {% if b.is_multipartquestion %}
+              <br />
+              {% for qp in b.question.multipartquestion.questionpart_set.all|dictsort:"part_order" %}
+                &emsp;&emsp;&emsp;{{ forloop.counter|alph }})&ensp;{{ qp.text }}<br />
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse">
+            {% include "questions/block_panelbody.html" %}
+          </div>
+        </div>
+
+        <div id="addBlockModal{{ forloop.counter0 }}" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Worksheet Format Block</h4>
+              </div>
+              <div class="modal-body">
+                <div class="btn-group-vertical btn-block">
+                  <a href="/worksheets/edit/{{ worksheet.pk }}/add/{{ pagebreak_pk }}/{{ forloop.counter0 }}" class="btn btn-primary">Page Break Block</a>
+                  <a href="/worksheets/edit/{{ worksheet.pk }}/add/{{ extrawhitespace_pk }}/{{ forloop.counter0 }}" class="btn btn-primary">Extra Whitespace Block</a>
+                  <a href="/worksheets/edit/{{ worksheet.pk }}/add/{{ removewhitespace_pk }}/{{ forloop.counter0 }}" class="btn btn-primary">Remove Whitespace Block</a>
+                  <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#directionsBlockModal">Directions Block</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="btn-group">
+    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#editPropertiesModal">Edit Properties</a>
+    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#downloadModal">Download</a>
+  </div>
+
+  <div id="editPropertiesModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form class="form" action="{{ worksheet.pk }}" method="POST">
+          {% csrf_token %}
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Edit Worksheet Properties</h4>
+          </div>
+          <div class="modal-body" style="text-align: center;">
+            <table class="table-condensed">
+              {{ properties_form.as_table }}
+            </table>
+          </div>
+          <div class="modal-footer">
+            <input type="submit" class="btn btn-primary btn-small" value="Update" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="downloadModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Download {{ worksheet.name }}</h4>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+          <p class="lead">Which do you want to download?</p>
+          <div class="btn-group">
+            <a href="../download/{{ worksheet.pk }}" target="_blank" class="btn btn-primary" style="text-decoration: none;" onclick="$('#downloadModal').modal('hide')">Blank Worksheet</a>
+            <a href="../download/{{ worksheet.pk }}?option=answers" target="_blank" class="btn btn-primary" style="text-decoration: none;" onclick="$('#downloadModal').modal('hide')">Answer Key</a>
+            <a href="../download/{{ worksheet.pk }}?option=source" target="_blank" class="btn btn-primary" style="text_decoration: none;" onclick="$('#downloadModal').modal('hide')">$\LaTeX$ Source Code</a>
+          </div>
+          <br />
+          <br />
+          <p><b>Note:</b> It may take a few seconds to generate worksheets, especially answer keys.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEED TO move this into the forloop and individualize it so it can be added after a block (as opposed to at the end). Need a hidden field to carry the position index through to the view. -->
+  <div id="directionsBlockModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form class="form" action="{{ worksheet.pk }}" method="POST">
+          {% csrf_token %}
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Add Direction Block</h4>
+          </div>
+          <div class="modal-body" style="text-align: center;">
+            <table class="table-condensed">
+              {{ directionsblock_form.as_table }}
+            </table>
+          </div>
+          <div class="modal-footer">
+            <input type="submit" class="btn btn-primary btn-small" value="Add" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load questions_extras %}
+
+{% block title %}List of Worksheets{% endblock %}
+
+{% block worksheets_nav %}active{% endblock %}
+
+{% block navbar_right %}<form class="navbar-form navbar-right" role="search" action="index" method="get"><div class="form-group">{{ search_form }}</div> <button type="submit" class="btn btn-primary btn-sm" ><span class="glyphicon glyphicon-search"></span> Search</button></form>{% endblock %}
+
+{% block content %}
+  <p>{{ worksheet_list|length }} results</p>
+  <div class="panel-group" id="accordion">
+    {% for ws in worksheet_list %}
+      <div class="panel panel-default">
+        <div class="panel-heading" style="background-color:{% cycle '#FCF3F3' '#FCFCFC' %}">
+          <div class="pull-right">
+            <a href="edit/{{ ws.pk }}" style="text-decoration: none;"><span class="glyphicon glyphicon-pencil"></span></a>&emsp;&emsp;
+            {% if ws.questions_in_order %}
+              <a href="#" style="text-decoration: none;" data-toggle="modal" data-target="#downloadModal{{ ws.pk }}"><span class="glyphicon glyphicon-download-alt"></span></a>&emsp;&emsp;
+            {% else %}
+              <span class="glyphicon glyphicon-download-alt"></span>&emsp;&emsp;
+            {% endif %}
+            <a href="remove/{{ ws.pk }}" style="text-decoration: none;" onclick="return confirm('Are you sure you want to delete {{ ws.name }}?')"><span class="glyphicon glyphicon-remove"></span></a>
+            <!--<div class="btn-group">
+              <a href="edit/{{ ws.pk }}" class="btn btn-primary btn-xs">Edit</a>
+              <input type="submit" class="btn btn-primary btn-xs" value="Generate PDF"></input>
+            </div>-->
+          </div>
+          <a class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}" style="text-decoration: none;">{{ ws.name }}{% if ws.description != '' and ws.description is not None %} &mdash; <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 75%; font-style: italic">{{ ws.description }}</span>{% endif %}</a>
+        </div>
+        <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse">
+          <div class="panel-body">
+            <h4>Description: <i style="color: gray">{{ ws.description }}</i></h4>
+            {% if ws.questions_in_order %}
+              {% for q in ws.questions_in_order %}
+                <h4 style="white-space: pre-wrap;">{{ forloop.counter }}) {{ q.text }}</h4>
+                {% if q.is_multipartquestion %}
+                  {% for qp in q.multipartquestion.questionpart_set.all|dictsort:"part_order" %}
+                    &emsp;&emsp;&emsp;{{ forloop.counter|alph }})&ensp;{{ qp.text }}<br />
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              No questions in this worksheet. Add some in the <a href="/questions/index">questions</a> window.
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div id="downloadModal{{ ws.pk }}" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Download {{ ws.name }}</h4>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+              <p class="lead">Which do you want to download?</p>
+              <div class="btn-group">
+                <a href="download/{{ ws.pk }}" target="_blank" class="btn btn-primary" style="text-decoration: none;" onclick="$('#downloadModal{{ ws.pk }}').modal('hide')">Blank Worksheet</a>
+                <a href="download/{{ ws.pk }}?option=answers" target="_blank" class="btn btn-primary" style="text-decoration: none;" onclick="$('#downloadModal{{ ws.pk }}').modal('hide')">Answer Key</a>
+                <a href="download/{{ ws.pk }}?option=source" target="_blank" class="btn btn-primary" style="text-decoration: none;">$\LaTeX$ Source Code</a>
+              </div>
+              <br />
+              <br />
+              <p><b>Note:</b> It may take a few seconds to generate worksheets, especially answer keys.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addWorksheetModal">Add New Worksheet</a>
+
+  {% include "worksheets/add_worksheet_modal.html" %}
+{% endblock %}

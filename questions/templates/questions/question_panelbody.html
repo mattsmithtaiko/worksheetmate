@@ -1,0 +1,8 @@
+{% if q.tags.all %}
+  <h4>Tags: <small>{% if q.category %}<b>{{ q.category.name }}</b>&emsp;{% endif %}{% for t in q.tags.all %}{{ t.name }}&emsp;{% endfor %}</small></h4>
+{% endif %}
+{% if q.singlequestion %}
+  {% include "questions/singlequestion_panelbody.html" %}
+{% elif q.multipartquestion %}
+  {% include "questions/multipartquestion_panelbody.html" %}
+{% endif %}

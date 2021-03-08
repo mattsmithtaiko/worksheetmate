@@ -1,0 +1,20 @@
+{% load questions_extras %}
+
+<table class="table-condensed">
+{% for qp in q.multipartquestion.questionpart_set.all|dictsort:"part_order" %}
+  <tr>
+    <th>{{ forloop.counter|alph }})</th>
+    <th>Answer:</th>
+    <td></td>
+  </tr>
+  <tr>
+    <th></th>
+    <th></th>
+    <td>{{ qp.answer }}</td>
+  </tr>
+  <tr>
+    <td></td>
+    <th>Number per row:</th>
+    <td>{{ qp.num_per_row }}</td>
+{% endfor %}
+</table>

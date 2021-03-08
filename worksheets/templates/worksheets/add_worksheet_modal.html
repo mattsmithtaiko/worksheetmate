@@ -1,0 +1,21 @@
+<div id="addWorksheetModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form class="form" action="/worksheets/index" method="POST">
+        {% csrf_token %}
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Add Worksheet</h4>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+          <table class="table-condensed">
+            {{ add_worksheet_form.as_table }}
+          </table>
+        </div>
+        <div class="modal-footer">
+          <input type="submit" class="btn btn-primary btn-small" value="Add Worksheet" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

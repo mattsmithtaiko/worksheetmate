@@ -1,0 +1,11 @@
+<div class="panel-body">
+  {% if b.is_singlequestion or b.is_multipartquestion %}
+    {% include "questions/question_panelbody.html" with q=b.question %}
+  {% elif b.is_worksheetformatblock %}
+    {% if b.is_directionsblock %}
+      {{ b.worksheetformatblock.wfbdirections.directions }}
+    {% else %}
+      <i>Worksheet Format Block</i>
+    {% endif %}
+  {% endif %}
+</div>

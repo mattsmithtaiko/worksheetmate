@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load questions_extras %}
+
+{% block title %}Add New Question{% endblock %}
+
+{% block worksheets_nav %}active{% endblock %}
+
+{% block content %}
+  <form action="{{ form_action }}" method="post">
+    {% csrf_token %}
+    <h4>Question</h4>
+    <table class="table-condensed">
+      {{ form.as_table }}
+    </table>
+      {% if formset %}
+        {% for formpart in formset %}
+          <h4>Part {{ forloop.counter|alph }})</h4>
+          <table class="table-condensed">
+            {{ formset.as_table }}
+          </table>
+        {% endfor %}
+      {% endif %}
+    <input type="submit" value="Submit" />
+  </form>
+{% endblock %}

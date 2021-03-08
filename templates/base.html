@@ -1,0 +1,85 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Default Title{% endblock %}</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script type="text/javascript">
+      window.MathJax = {
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+          processEscapes: true
+        }
+      };
+    </script>
+    <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Bootstrap optional theme -->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">-->
+    <!-- Bootswatch "Simplex" optional theme -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/simplex/bootstrap.min.css" rel="stylesheet" integrity="sha384-C0X5qw1DlkeV0RDunhmi4cUBUkPDTvUqzElcNWm1NI2T4k8tKMZ+wRPQOhZfSJ9N" crossorigin="anonymous">
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">WorksheetMate <i>Beta</i></a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li class="{% block worksheets_nav %}{% endblock %}"><a href="/worksheets/index">Worksheets</a></li>
+          <li class="{% block questions_nav %}{% endblock %}"><a href="/questions/index">Questions</a></li>
+        </ul>
+        {% block navbar_right %}{% endblock %}
+      </div>
+    </nav>
+
+    <!-- code for issuing notifications -->
+    {% if messages %}
+        {% for message in messages %}
+          {% if message.tags == 'success' %}
+            <div class="alert alert-success fade in">
+          {% elif message.tags == 'error' %}
+            <div class="alert alert-danger fade in">
+          {% endif %}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>{{ message.tags|capfirst }}!</strong> {{ message }}
+          </div>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <!--{% if success %}
+      <div class="alert alert-success fade in">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Success!</strong> {{ success_text }}
+      </div>
+    {% elif success is not None %}
+      <div class="alert alert-danger fade in">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        <strong>Error.</strong> {{ success_text }}
+      </div>
+    {% endif %}-->
+
+      <div class="container" style="width:100%">
+        {% block content %}{% endblock %}
+      </div>
+      <br />
+      <br />
+
+    <footer class="footer text-center" style="position: fixed; left: 0; bottom: 0; height: 32px; width: 100%; background:#FCFCFC;">
+      <div class="container">
+        <div class="text-primary">
+            Coded and designed by Matthew C. Smith. &copy; 2018
+      </div>
+    </footer>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+  </body>
+</html>

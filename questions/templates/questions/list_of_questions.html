@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load questions_extras %}
+
+{% block title %}List of Questions{% endblock %}
+
+{% block questions_nav %}active{% endblock %}
+
+{% block navbar_right %}<form class="navbar-form navbar-right" role="search" action="index" method="get"><div class="form-group">{{ search_form }}</div> <button type="submit" class="btn btn-primary btn-sm" ><span class="glyphicon glyphicon-search"></span> Search</button></form>{% endblock %}
+
+{% block content %}
+  <p>{{ question_list|length }} results</p>
+  {% if question_list %}
+    <form action="index" method="post">
+      {% csrf_token %}
+      <div class="panel-group" id="accordion">
+        {% for q in question_list %}
+          <div class="panel panel-default">
+            <div class="panel-heading clearfix" style="background-color:{% cycle '#FCF3F3' '#FCFCFC' %}">
+              <input class="form-check-input" type="checkbox" name="choices" value="{{ q.id }}">&emsp;<span class="panel-title" style="width: 75%;"><a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}" style="text-decoration: none; white-space: pre-wrap;">{{ q.text }}</a></span>
+              {% if q.worksheet_set.all %}
+              <span class="pull-right"><b>Used in:</b>
+              {% for ws in q.worksheet_set.all %}
+                <a href="/worksheets/edit/{{ ws.pk }}">{{ ws.name }}</a>&emsp;
+              {% endfor %}</span>
+              {% endif %}
+              {% if q.multipartquestion %}
+                <br />
+                {% for qp in q.multipartquestion.questionpart_set.all|dictsort:"part_order" %}
+                  &emsp;&emsp;&emsp;{{ forloop.counter|alph }})&ensp;{{ qp.text }}<br />
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse">
+              {% include "questions/question_panelbody.html" %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {{ form.worksheet }}
+      <input type="submit" class="btn btn-primary btn-sm" value="Add to Worksheet" />
+    </form>
+  {% else %}
+    No questions match your query.
+  {% endif %}
+{% endblock %}
